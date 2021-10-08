@@ -9,8 +9,8 @@ import pandas as pd
 
 # clova
 
-client_id = "fdtbk17am8"
-client_secret = "etPIPUCLJvh29S3wCEK17if5SiIDlbWUG13F1HbV"
+client_id = "개인 id 값"
+client_secret = "secret 키 값"
 lang = "Kor" # 언어코드{Kor, Jpn, Eng, Chn}
 url = "https://naveropenapi.apigw.ntruss.com/recog/v1/stt?lang=" + lang
 
