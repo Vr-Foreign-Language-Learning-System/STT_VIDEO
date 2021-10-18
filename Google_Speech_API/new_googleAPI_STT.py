@@ -1,14 +1,10 @@
-# Youlim & Hyunji Code
-# 환경 설정 참고 블로그 https://ninano1109.tistory.com/41
-
-def transcribe_gcs_with_word_time_offsets(speech_file):
-
+def transcribe_with_word_time_offsets(speech_file):
     """Transcribe the given audio file asynchronously and output the word time
     offsets."""
-
     from google.cloud import speech
     import io
-    import sys
+    import json
+    from collections import OrderedDict
 
     # Instantiates a client
     client = speech.SpeechClient()
@@ -27,39 +23,38 @@ def transcribe_gcs_with_word_time_offsets(speech_file):
     operation = client.long_running_recognize(config=config, audio=audio)
 
     print("Waiting for operation to complete...")
-    result = operation.result(timeout=90)
+    result = operation.result(timeout=180)
 
     for result in result.results:
         alternative = result.alternatives[0]
-
         print("Transcript: {}".format(alternative.transcript))
         print("Confidence: {}".format(alternative.confidence))
 
-        sys.stdout = open('timestamp.json', 'w')
-
-        print("{\n\"sentence\":[")
+        data_total_form_list = {
+            "sentence" : []
+        }
 
         for word_info in alternative.words:
+            data_form = OrderedDict()
             word = word_info.word
             start_time = word_info.start_time
             end_time = word_info.end_time
 
-            print('{',end=' ')
             print(
-                f"\"word\": \"{word}\", \"start_time\": \"{start_time.total_seconds()}\", \"end_time\": \"{end_time.total_seconds()}\"",end=' '
+                f"Word: {word}, start_time: {start_time.total_seconds()}, end_time: {end_time.total_seconds()}"
             )
-            print('},')
+            #word들을 json으로 바꿔주기
+            #return: not a json file, A string containing the JSON formatted protocol buffer message.
+            data_total_form_list["sentence"].append({
+                'word' : word,
+                'start_time' : start_time.total_seconds(),
+                'end_time' : end_time.total_seconds()
+            })
 
-            # 마지막 , 슬라이싱 해야 됨
+    #json 파일 생성
+    json_data = json.dumps(data_total_form_list)
+    json_decode_data = json_data.encode().decode('unicode-escape')
+    with open('test.json', 'w', encoding='UTF-8') as f:
+        f.write(json_decode_data)
 
-        print("]\n}")
-        sys.stdout.close()
-
-transcribe_gcs_with_word_time_offsets('../audio&data/sample2.wav')
-
-'''
-from google.protobuf.json_format import MessageToJson
-response = transcribe_gcs_with_word_time_offsets('../audio&data/sample2.wav')
-response_json = MessageToJson(response._pb)
-print(MessageToJson(response._pb))
-'''
+transcribe_with_word_time_offsets('../audio&data/sample2.wav')
