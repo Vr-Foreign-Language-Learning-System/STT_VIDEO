@@ -4,8 +4,7 @@
       "transcript": "okay so what am I doing here...(etc)...",
       "confidence": 0.96596134,
       "words": [
-        {
-          "startTime": "1.400s",
+        {"startTime": "1.400s",
           "endTime": "1.800s",
           "word": "okay"
         },
